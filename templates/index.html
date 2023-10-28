@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API REST CRUD con GORM y MySQL</title>
+</head>
+<body>
+    <h1>Usuarios</h1>
+    <ul id="usuarios-list">
+        <!-- Lista de usuarios se mostrará aquí -->
+    </ul>
+
+    <h2>Agregar Usuario</h2>
+    <form id="agregar-usuario-form">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <input type="submit" value="Agregar Usuario">
+    </form>
+
+    <script>
+        // Lógica para interactuar con la API REST CRUD
+
+        // Función para cargar la lista de usuarios
+        function cargarUsuarios() {
+            fetch("/usuarios")
+                .then(response => response.json())
+                .then(data => {
+                    const usuariosList = document.getElementById("usuarios-list");
+                    usuariosList.innerHTML = "";
+                    data.forEach(usuario => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `ID: ${usuario.id}, Nombre: ${usuario.nombre}, Email: ${usuario.email}`;
+                        usuariosList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error("Error al cargar usuarios:", error));
+        }
+
+        // Cargar la lista de usuarios al cargar la página
+        cargarUsuarios();
+
+        // Agregar un usuario
+        const agregarUsuarioForm = document.getElementById("agregar-usuario-form");
+        agregarUsuarioForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData(agregarUsuarioForm);
+            fetch("/usuarios", {
+                method: "POST",
+                body: JSON.stringify({
+                    nombre: formData.get("nombre"),
+                    email: formData.get("email")
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Usuario agregado:", data);
+                cargarUsuarios();
+                agregarUsuarioForm.reset();
+            })
+            .catch(error => console.error("Error al agregar usuario:", error));
+        });
+    </script>
+</body>
+</html>
